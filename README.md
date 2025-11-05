@@ -6,6 +6,20 @@ A comprehensive AI-powered pitch deck analysis platform that provides institutio
 
 The Pitch Deck Analyzer extracts text from pitch decks (PDF/PPTX) and generates detailed investment memos using AI analysis enhanced with specialized investment domain knowledge. The system applies frameworks used by top-tier VC firms and includes quality evaluation to ensure analysis consistency and accuracy.
 
+## 📸 Screenshots
+
+### Main Interface
+![Main Interface](screenshots/main-interface.png)
+*Upload your pitch deck with drag-and-drop functionality*
+
+### tests
+![Analysis Progress](screenshots/test.png)
+
+
+### Quality Evaluation Results
+![Evaluation Results](screenshots/eval.png)
+*LLM-as-a-Judge quality assessment*
+
 ## 🏗️ Architecture
 
 ### Backend (`/backend`)
