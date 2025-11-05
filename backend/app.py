@@ -1,6 +1,6 @@
 import fitz  # PyMuPDF for PDF extraction
 from pptx import Presentation
-from openai import OpenAI
+from openai import OpenAI  # OpenRouter is compatible with OpenAI client
 import json
 import os
 import sys
@@ -231,8 +231,8 @@ def extract_text_from_pptx(pptx_path):
                 text_runs.append(f"[Slide {slide_num + 1}] {shape.text}")
     return "\n".join(text_runs)
 
-# 3. Enhanced analyze function with RAG
-def analyze_pitch_deck_with_rag(content, openai_api_key, prompt_manager=None, rag_system=None):
+# 3. Enhanced analyze function with RAG - Modified for OpenRouter
+def analyze_pitch_deck_with_rag(content, openrouter_api_key, prompt_manager=None, rag_system=None):
     if prompt_manager is None:
         prompt_manager = PromptManager()
     
@@ -268,21 +268,32 @@ Use the retrieved investment knowledge above to inform your analysis and provide
     user_prompt = config["user_prompt_template"].format(content=content)
     model_config = config["model_config"]
 
-    client = OpenAI(api_key=openai_api_key)
+    # Configure OpenRouter client
+    client = OpenAI(
+        api_key=openrouter_api_key,
+        base_url="https://openrouter.ai/api/v1",
+        default_headers={
+            "HTTP-Referer": "https://github.com/your-username/AnalyzeDeck",
+            "X-Title": "Pitch Deck Analyzer"
+        }
+    )
 
+    # Use GPT-4 as default model
+    model = model_config.get("model", "openai/gpt-4-turbo")  # Changed to GPT-4 Turbo
+    
     response = client.chat.completions.create(
-        model=model_config["model"],
+        model=model,
         messages=[
             {"role": "system", "content": system_prompt_with_rag},
             {"role": "user", "content": user_prompt}
         ],
-        max_tokens=model_config["max_tokens"],
-        temperature=model_config["temperature"]
+        max_tokens=model_config.get("max_tokens", 4000),
+        temperature=model_config.get("temperature", 0.7)
     )
     return response.choices[0].message.content
 
-# 4. Main function to process a pitch deck file and save the Markdown report
-def process_pitch_deck(file_path, openai_api_key):
+# 4. Main function - Updated for OpenRouter
+def process_pitch_deck(file_path, openrouter_api_key):
     if file_path.lower().endswith(".pdf"):
         text = extract_text_from_pdf(file_path)
     elif file_path.lower().endswith(".pptx"):
@@ -300,8 +311,8 @@ def process_pitch_deck(file_path, openai_api_key):
         print("Loading prompt configuration...")
         prompt_manager = PromptManager()
         
-        print("Generating RAG-enhanced analysis...")
-        markdown_report = analyze_pitch_deck_with_rag(text, openai_api_key, prompt_manager, rag_system)
+        print("Generating RAG-enhanced analysis with OpenRouter...")
+        markdown_report = analyze_pitch_deck_with_rag(text, openrouter_api_key, prompt_manager, rag_system)
         
     except (FileNotFoundError, ValueError) as e:
         print(f"Error during analysis: {e}")
@@ -320,17 +331,20 @@ if __name__ == "__main__":
     # Check if API key is provided as argument or environment variable
     if len(sys.argv) == 3:
         file_path = sys.argv[1]
-        openai_api_key = sys.argv[2]
+        openrouter_api_key = sys.argv[2]
     elif len(sys.argv) == 2:
         file_path = sys.argv[1]
-        openai_api_key = os.getenv('OPENAI_API_KEY')
-        if not openai_api_key:
-            print("Error: OPENAI_API_KEY environment variable not set")
-            print("Usage: python app.py <path_to_pitchdeck.pdf/pptx> [openai_api_key]")
+        openrouter_api_key = os.getenv('OPENROUTER_API_KEY')
+        if not openrouter_api_key:
+            print("Error: OPENROUTER_API_KEY environment variable not set")
+            print("Usage: python app.py <path_to_pitchdeck.pdf/pptx> [openrouter_api_key]")
+            print("\nAlternatively, set environment variable:")
+            print("Windows: set OPENROUTER_API_KEY=your_key_here")
+            print("Linux/Mac: export OPENROUTER_API_KEY=your_key_here")
             sys.exit(1)
     else:
-        print("Usage: python app.py <path_to_pitchdeck.pdf/pptx> [openai_api_key]")
-        print("Or set OPENAI_API_KEY environment variable")
+        print("Usage: python app.py <path_to_pitchdeck.pdf/pptx> [openrouter_api_key]")
+        print("Or set OPENROUTER_API_KEY environment variable")
         sys.exit(1)
         
-    process_pitch_deck(file_path, openai_api_key)
+    process_pitch_deck(file_path, openrouter_api_key)
