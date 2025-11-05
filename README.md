@@ -1,6 +1,6 @@
 # Pitch Deck Analyzer 🚀
 ## FullStack app: Backend in Python FrontEnd in TypeScript
-A comprehensive AI-powered pitch deck analysis platform that provides institutional-grade investment analysis for venture capital professionals. Built with RAG (Retrieval-Augmented Generation) technology and includes an integrated LLM-as-a-Judge evaluation system for quality assurance.
+A comprehensive AI-powered pitch deck analysis platform that provides institutional-grade investment analysis for venture capital professionals. Built with **RAG (Retrieval-Augmented Generation) technology and includes an integrated LLM-as-a-Judge evaluation system for quality assurance**.
 
 ## 🎯 Overview
 
