@@ -12,6 +12,7 @@ import logging
 import pickle
 from pathlib import Path
 import time
+from test_llm_judge import LLMJudge, EvaluationReporter
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -292,8 +293,8 @@ Use the retrieved investment knowledge above to inform your analysis and provide
     )
     return response.choices[0].message.content
 
-# 4. Main function - Updated for OpenRouter
-def process_pitch_deck(file_path, openrouter_api_key):
+# 4. Enhanced main function with optional evaluation
+def process_pitch_deck(file_path, openrouter_api_key, enable_evaluation=False):
     if file_path.lower().endswith(".pdf"):
         text = extract_text_from_pdf(file_path)
     elif file_path.lower().endswith(".pptx"):
@@ -326,25 +327,52 @@ def process_pitch_deck(file_path, openrouter_api_key):
         f.write(markdown_report)
 
     print(f"RAG-enhanced investment analysis saved to: {output_markdown_path}")
+    
+    # Optional evaluation
+    if enable_evaluation:
+        print("\nEvaluating analysis quality...")
+        try:
+            judge = LLMJudge(openrouter_api_key)
+            evaluation = judge.evaluate_analysis(text, markdown_report)
+            
+            # Save evaluation
+            eval_path = output_markdown_path.replace('.md', '_evaluation.json')
+            with open(eval_path, 'w', encoding='utf-8') as f:
+                json.dump(evaluation, f, indent=2)
+            
+            # Print summary
+            scores = evaluation['scores']
+            print(f"\n✅ Evaluation completed!")
+            print(f"📊 Overall Score: {scores['overall']:.1f}/10")
+            print(f"   - Accuracy: {scores['accuracy']:.1f}/10")
+            print(f"   - Completeness: {scores['completeness']:.1f}/10")
+            print(f"   - Relevance: {scores['relevance']:.1f}/10")
+            print(f"   - Actionability: {scores['actionability']:.1f}/10")
+            print(f"📄 Detailed evaluation saved to: {eval_path}")
+            
+        except Exception as e:
+            print(f"⚠️ Evaluation failed: {e}")
 
 if __name__ == "__main__":
-    # Check if API key is provided as argument or environment variable
-    if len(sys.argv) == 3:
-        file_path = sys.argv[1]
-        openrouter_api_key = sys.argv[2]
-    elif len(sys.argv) == 2:
-        file_path = sys.argv[1]
-        openrouter_api_key = os.getenv('OPENROUTER_API_KEY')
-        if not openrouter_api_key:
-            print("Error: OPENROUTER_API_KEY environment variable not set")
-            print("Usage: python app.py <path_to_pitchdeck.pdf/pptx> [openrouter_api_key]")
-            print("\nAlternatively, set environment variable:")
-            print("Windows: set OPENROUTER_API_KEY=your_key_here")
-            print("Linux/Mac: export OPENROUTER_API_KEY=your_key_here")
-            sys.exit(1)
-    else:
-        print("Usage: python app.py <path_to_pitchdeck.pdf/pptx> [openrouter_api_key]")
-        print("Or set OPENROUTER_API_KEY environment variable")
+    # Enhanced argument parsing
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Analyze pitch decks with RAG-enhanced AI')
+    parser.add_argument('file_path', help='Path to pitch deck (PDF or PPTX)')
+    parser.add_argument('--api-key', help='OpenRouter API key (or set OPENROUTER_API_KEY env var)')
+    parser.add_argument('--evaluate', action='store_true', help='Enable quality evaluation')
+    
+    args = parser.parse_args()
+    
+    # Get API key
+    api_key = args.api_key or os.getenv('OPENROUTER_API_KEY')
+    if not api_key:
+        print("Error: OPENROUTER_API_KEY environment variable not set and --api-key not provided")
+        print("Usage: python app.py <path_to_pitchdeck> [--api-key YOUR_KEY] [--evaluate]")
         sys.exit(1)
-        
-    process_pitch_deck(file_path, openrouter_api_key)
+    
+    try:
+        process_pitch_deck(args.file_path, api_key, args.evaluate)
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
