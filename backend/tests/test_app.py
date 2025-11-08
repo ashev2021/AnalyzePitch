@@ -5,6 +5,7 @@ import os
 import json
 import sys
 from pathlib import Path
+import numpy as np
 
 # Add parent directory to path so we can import app
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -106,7 +107,8 @@ class TestApp(unittest.TestCase):
         """Test RAG system initialization"""
         # Mock sentence transformer
         mock_model = Mock()
-        mock_model.encode.return_value = [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]]
+        # Change this line - return numpy array instead of list
+        mock_model.encode.return_value = np.array([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]])
         mock_sentence_transformer.return_value = mock_model
         
         # Mock FAISS

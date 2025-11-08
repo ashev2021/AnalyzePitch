@@ -9,6 +9,7 @@ import asyncio
 from pathlib import Path
 import logging
 
+
 # Import your existing modules
 from app import (
     FAISSRAGSystem, 
@@ -17,6 +18,9 @@ from app import (
     extract_text_from_pptx,
     analyze_pitch_deck_with_rag
 )
+
+# Load environment variables from .env file
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
