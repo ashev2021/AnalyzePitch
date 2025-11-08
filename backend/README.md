@@ -31,6 +31,11 @@ cd AnalyzePitch/backend
 python -m venv venv
 venv\Scripts\activate
 ```
+or 
+
+```bash
+uv venv
+```
 
 **Mac/Linux:**
 ```bash
@@ -44,6 +49,11 @@ source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
+or
+```bash
+pip install -r requirements.txt
+```
+
 
 ## Configuration
 
