@@ -70,7 +70,7 @@ The Pitch Deck Analyzer extracts text from pitch decks (PDF/PPTX) and generates 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.8+ ideally 3.12.10
 - Node.js 16+
 - OpenAI API key or OpenRouter API key
 
@@ -105,7 +105,7 @@ npm install
 npm run dev
 ```
 
-The frontend will start on `http://localhost:5173`
+The frontend will start on `http://localhost:8080`
 
 ## 📋 Usage
 
