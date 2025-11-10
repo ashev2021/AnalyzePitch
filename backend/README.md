@@ -51,7 +51,7 @@ pip install -r requirements.txt
 ```
 or
 ```bash
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 
